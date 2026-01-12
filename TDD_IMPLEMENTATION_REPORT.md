@@ -284,9 +284,9 @@ Add to Claude Code `settings.json`:
 ```json
 {
   "hooks": {
-    "SessionStart": "/home/juhur/PROJECTS/claude_notification_wsl2/hooks/SessionStart.sh",
-    "SessionEnd": "/home/juhur/PROJECTS/claude_notification_wsl2/hooks/SessionEnd.sh",
-    "PostToolUse": "/home/juhur/PROJECTS/claude_notification_wsl2/hooks/PostToolUse.sh"
+    "SessionStart": "$PROJECT_ROOT/hooks/SessionStart.sh",
+    "SessionEnd": "$PROJECT_ROOT/hooks/SessionEnd.sh",
+    "PostToolUse": "$PROJECT_ROOT/hooks/PostToolUse.sh"
   }
 }
 ```
