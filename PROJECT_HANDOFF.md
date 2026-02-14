@@ -6,7 +6,8 @@
 
 A notification framework that enables Windows toast notifications from WSL2 when using Claude Code CLI. Supports multi-language (EN, KO, JA, ZH) with detailed notifications similar to Codex CLI.
 
-**Last updated**: 2026-02-11 23:15
+**Last updated**: 2026-02-14 16:15
+**Version**: 1.2.1
 **Last coding CLI used**: Claude Code CLI
 
 ## 2. Current State
@@ -17,7 +18,7 @@ A notification framework that enables Windows toast notifications from WSL2 when
 | Multi-language templates | Completed | EN, KO, JA, ZH |
 | Hook scripts (Stop, Notification, PermissionRequest) | Completed | Extracts last assistant message |
 | Detailed notifications (Codex CLI style) | Completed | Reads transcript for last message |
-| Duplicate notification fix | Completed | Removed hooks from user-level settings |
+| Global hook installation | Completed | Uses `$HOME` for portable paths |
 | Documentation | Completed | README.md, docs/HOOKS.md updated |
 | Test coverage | Completed | 92% coverage, 63/63 tests passing |
 
@@ -29,6 +30,7 @@ A notification framework that enables Windows toast notifications from WSL2 when
 | Hook integration | Completed | 2026-02-11 | Stop, Notification, PermissionRequest |
 | Detailed notifications | Completed | 2026-02-11 | Extracts last assistant message from transcript |
 | Documentation v1.2.0 | Completed | 2026-02-11 23:15 | README and HOOKS.md updated |
+| Global hook path fix | Completed | 2026-02-14 16:00 | Uses `$HOME` for portability |
 
 ## 4. Outstanding Work
 
@@ -48,6 +50,7 @@ No active work items. Project is feature-complete for v1.2.0.
 | Message extraction | Python script test | Pass | 2026-02-11 |
 | Notification display | Manual test | Pass | 2026-02-11 |
 | Duplicate fix | Log analysis | Pass | 2026-02-11 |
+| Global hook path fix | Settings verification | Pass | 2026-02-14 |
 
 ## 7. Restart Instructions
 
@@ -58,4 +61,4 @@ No active work items. Project is feature-complete for v1.2.0.
 2. Consider adding more notification types if needed
 3. Update language templates as needed
 
-**Last updated**: 2026-02-11 23:15
+**Last updated**: 2026-02-14 16:00
