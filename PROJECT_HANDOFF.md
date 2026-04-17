@@ -6,8 +6,8 @@
 
 A notification framework that enables Windows toast notifications from WSL2 when using Claude Code CLI. Supports multi-language (EN, KO, JA, ZH) with detailed notifications similar to Codex CLI. v1.3.0 adds silent-by-default toasts, duplicate-notification suppression, and a terminal-title working spinner.
 
-**Last updated**: 2026-04-16 23:15
-**Version**: 1.3.0
+**Last updated**: 2026-04-17 14:10
+**Version**: 1.3.1
 **Last coding CLI used**: Claude Code CLI (v2.1.112)
 
 ## 2. Current State
@@ -37,10 +37,11 @@ A notification framework that enables Windows toast notifications from WSL2 when
 | Installed-location refactor (v1.2.2) | Completed | 2026-02-14 17:10 | Hooks live in `~/.claude/hooks/wsl-toast/` |
 | Silent + dedup + spinner (v1.3.0) | Completed | 2026-04-16 22:15 | Phases A-D executed in one session |
 | Spinner refinement to flicker-free + per-tty | Completed | 2026-04-16 23:15 | Dropped Braille title loop (OSC 0 repaints caused flicker); kept OSC 9;4;3 taskbar pulse. State files keyed per-tty for concurrent sessions. Requires CC `spinnerTipsEnabled: false`. |
+| Installer parity with v1.3.0 (v1.3.1) | Completed | 2026-04-17 14:10 | `setup.sh` now copies `_spinner.sh` + `UserPromptSubmit.sh`, registers UserPromptSubmit hook, writes `spinnerTipsEnabled: false`, defaults `config.json` to `silent: true`. |
 
 ## 4. Outstanding Work
 
-No active work items. v1.3.0 is feature-complete.
+No active work items. v1.3.1 is feature-complete.
 
 Nice-to-have (not scheduled):
 - Unit tests covering the new `--silent`/`--sound` branches in `notify.sh`
@@ -70,11 +71,11 @@ Nice-to-have (not scheduled):
 
 ## 7. Restart Instructions
 
-**Starting point**: v1.3.0 is complete. The next time Claude Code launches, the new hooks in `~/.claude/settings.json` will take effect automatically (no restart of CC required for existing sessions to pick up; new sessions only).
+**Starting point**: v1.3.1 is complete. The next time Claude Code launches, the new hooks in `~/.claude/settings.json` will take effect automatically (no restart of CC required for existing sessions to pick up; new sessions only).
 
 **Recommended next actions**:
 1. Use Claude Code in a normal session; watch for the spinner in the Windows Terminal title bar / taskbar, and confirm toasts arrive silently without the ~10s idle_prompt duplicate.
 2. If CC's own TUI overwrites the title-bar text so the Braille frames aren't visible, rely on the taskbar pulsing progress (OSC 9;4;3) as the primary indicator.
 3. Consider adding automated tests for the new paths if this project is promoted out of personal use.
 
-**Last updated**: 2026-04-16 23:15
+**Last updated**: 2026-04-17 14:10

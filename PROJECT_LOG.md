@@ -255,3 +255,55 @@ Phase D - Docs:
 **Commits**:
 - `fac8367` feat: v1.3.0 — silent toasts, idle_prompt dedup, flicker-free busy indicator
 
+---
+
+## Session 2026-04-17 13:30-14:15
+
+**Coding CLI used**: Claude Code CLI (v2.1.112, Opus 4.7)
+
+**Phase(s) worked on**:
+- v1.3.1 installer fix — `setup.sh` parity with v1.3.0 runtime
+
+**Context**:
+User pulled the v1.3.0 work on a second machine and ran `./setup.sh`. Spinner still wasn't visible. Investigation showed `setup.sh` had never been updated for v1.3.0: it was stuck at v1.2.2, copying only the three original hooks, not offering the `UserPromptSubmit` hook, not touching `spinnerTipsEnabled`, and rewriting `~/.wsl-toast/config.json` back to the pre-v1.3.0 `sound_enabled: true` default (silently re-enabling the Windows ding). The v1.3.0 release commit (`fac8367`) updated runtime code + docs but forgot the installer.
+
+**Concrete changes implemented**:
+1. `setup.sh` header: bumped `# Version: 1.2.2` → `1.3.1`
+2. `create_default_config()`: new `~/.wsl-toast/config.json` template now writes `silent: true, sound_enabled: false` (matches v1.3.0 runtime default, prevents regression on re-install)
+3. `install_hook_scripts()`: copy list extended with `UserPromptSubmit.sh` and `_spinner.sh`
+4. `configure_claude_hooks()`: added `UserPromptSubmit` prompt (default Y), its timeout prompt, and its env var passthrough
+5. Python block inside `configure_claude_hooks()`: added registration branch for `UserPromptSubmit` hook, and when that branch fires it also sets `settings["spinnerTipsEnabled"] = False` at the top level
+6. README.md: bumped "Version" line to 1.3.1 (2026-04-17); added 1.3.1 changelog entry describing installer fix
+7. PROJECT_HANDOFF.md: version → 1.3.1, last-updated → 2026-04-17 14:10, added execution-plan row for the installer fix, updated restart-instructions prose
+8. PROJECT_LOG.md: this entry
+
+**Files/modules/functions touched**:
+- `setup.sh` — header, `create_default_config`, `install_hook_scripts`, `configure_claude_hooks` (both bash-side prompts and embedded Python block)
+- `README.md` — Version line, Changelog (new 1.3.1 entry prepended)
+- `PROJECT_HANDOFF.md` — version, last-updated, execution plan table, Outstanding Work wording, Restart Instructions
+- `PROJECT_LOG.md` — appended this session
+
+**Key technical decisions and rationale**:
+- **`spinnerTipsEnabled: false` tied to UserPromptSubmit opt-in**, not a separate global toggle: the setting only matters when the spinner hook is active; applying it unconditionally would surprise users who decline the spinner.
+- **Legacy `sound_enabled: false` kept in the new default**: `scripts/notify.sh` still respects the legacy key for backward compat, so writing both `silent: true` and `sound_enabled: false` is belt-and-suspenders for older `notify.sh` copies that might still be on disk.
+- **Stale "PID lifecycle" nice-to-have NOT rewritten yet**: the PROJECT_HANDOFF.md nice-to-have list mentions a Bats test for `_spinner.sh` PID lifecycle, but v1.3.0's refactor removed the PID file entirely (no background animator). Left alone — it's clearly a nice-to-have, not blocking, and rewording is cosmetic.
+- **Historical version strings preserved**: `scripts/notify.sh:62` ("Silent by default in v1.3.0+"), `windows/wsl-toast.ps1:87` (same), and `setup.sh:414` ("v1.3.0 spinner helpers") describe *when* a feature was introduced and are intentionally not bumped.
+
+**Problems encountered and resolutions**:
+- **Running `setup.sh` reverted `~/.wsl-toast/config.json` to the v1.2.x sound-enabled default**: root cause was the stale `create_default_config` template. Fixed by flipping the template to `silent: true, sound_enabled: false`.
+- **`tty` command fails from within a hook / agent subprocess**: documented earlier in v1.3.0; not a new issue — mentioned here only because current-session diagnostics returned "not a tty" and required a PPid-walk check to identify installed-vs-source drift.
+
+**Items explicitly completed**:
+- Fresh-clone installability of v1.3.0 runtime behavior
+- Version bump to 1.3.1 across active declarations
+- Handoff + log updated
+
+**Verification performed**:
+- `bash -n setup.sh` — passes
+- `./setup.sh --dry-run` — runs clean; no Python exceptions in the embedded block
+- Visual review of the modified `configure_claude_hooks()` Python: `UserPromptSubmit` registration path and `spinnerTipsEnabled` mutation both gated on `HOOK_ENABLE_USERPROMPTSUBMIT == "true"`
+- User instructed to run `./setup.sh --force` and restart CC session for live verification (post-commit)
+
+**Commits**:
+- (this commit) chore: v1.3.1 — installer parity with v1.3.0 runtime
+
