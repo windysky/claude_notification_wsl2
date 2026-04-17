@@ -253,5 +253,5 @@ Phase D - Docs:
 - Clarified that Windows Terminal's green-asterisk tab indicator is tab-focus-dependent (only shows on background tabs), not a bug in our code
 
 **Commits**:
-- (to be added after commit lands)
+- `fac8367` feat: v1.3.0 — silent toasts, idle_prompt dedup, flicker-free busy indicator
 
