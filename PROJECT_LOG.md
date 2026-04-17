@@ -305,5 +305,61 @@ User pulled the v1.3.0 work on a second machine and ran `./setup.sh`. Spinner st
 - User instructed to run `./setup.sh --force` and restart CC session for live verification (post-commit)
 
 **Commits**:
-- (this commit) chore: v1.3.1 — installer parity with v1.3.0 runtime
+- `d7f4b4d` fix: v1.3.1 — installer parity with v1.3.0 runtime
+
+---
+
+## Session 2026-04-17 14:30-14:50
+
+**Coding CLI used**: Claude Code CLI (v2.1.112, Opus 4.7)
+
+**Phase(s) worked on**:
+- v1.3.2 bug fix — Windows PowerShell ExecutionPolicy block on WSL remote paths
+
+**Context**:
+After v1.3.1 install on the second machine, user reported the spinner worked but no Windows toast appeared. Diagnostics showed the Stop hook was firing correctly (logged the full assistant message to `~/.wsl-toast/logs/hooks.log`), but a manual `notify.sh` invocation returned:
+
+```
+File \\wsl.localhost\Ubuntu\home\juhur\.claude\hooks\wsl-toast\windows\wsl-toast.ps1
+cannot be loaded. The file ... is not digitally signed. You cannot run
+this script on the current system.
++ FullyQualifiedErrorId : UnauthorizedAccess
+```
+
+Root cause: Windows PowerShell treats UNC-style WSL paths (`\\wsl.localhost\Ubuntu\...`) as remote/network paths. The default `RemoteSigned` execution policy rejects unsigned scripts from remote paths. The v1.3.0 release happened to work on the original dev machine because its policy was configured more permissively (likely `Unrestricted` or `Bypass`). Fresh WSL installs on stock Windows hit this wall.
+
+**Concrete changes implemented**:
+1. `scripts/notify.sh` (line 291): `POWERSHELL_ARGS` now includes `-ExecutionPolicy Bypass` before the `-File` argument, with an inline comment explaining the WSL-remote-path rationale
+2. Synced patched `scripts/notify.sh` to `~/.claude/hooks/wsl-toast/notify.sh` for immediate in-session verification
+3. Manual test `notify.sh --title "Fix Test" --message "..."` returned `[INFO] Notification sent successfully`; user confirmed toast appeared
+4. Version bumped 1.3.1 → 1.3.2 in `setup.sh`, `README.md`, `PROJECT_HANDOFF.md`
+5. README.md: prepended 1.3.2 changelog entry
+6. PROJECT_HANDOFF.md: new execution-plan row, last-updated + restart-instructions version refs
+
+**Files/modules/functions touched**:
+- `scripts/notify.sh` — one-line fix + comment in `POWERSHELL_ARGS` construction
+- `~/.claude/hooks/wsl-toast/notify.sh` — synced (installed copy)
+- `setup.sh` — header version
+- `README.md` — version line, changelog
+- `PROJECT_HANDOFF.md` — version, last-updated, execution plan, restart instructions
+- `PROJECT_LOG.md` — this entry
+
+**Key technical decisions and rationale**:
+- **`-ExecutionPolicy Bypass` on the command line is safe and scoped**: it only applies to this PowerShell invocation, not the system policy. Corporate lockdown via Group Policy can still override it, but the common stock-Windows `RemoteSigned` default yields to command-line override.
+- **Placed before `-File`**: PowerShell's argument parser requires execution-policy overrides to precede the script path.
+- **Did not sign the script**: code signing would require a certificate + distribution infrastructure; Bypass is a one-line fix with equivalent effect for a personal tool.
+- **Patch release, not minor**: bugfix only, no new features, no config or user-facing schema change. SemVer patch (1.3.1 → 1.3.2).
+
+**Problems encountered and resolutions**:
+- **Silent toast failure masked by "success" logs**: `Stop.sh` was firing and logging correctly; the failure was downstream in `notify.sh`'s PowerShell call. Had to run `notify.sh` manually (with stderr visible) to surface the PS error. Suggests adding toast-delivery status to `hooks.log` would help future diagnosis; not done here to keep the fix minimal.
+
+**Items explicitly completed**:
+- Toast delivery on machines with default `RemoteSigned` PowerShell policy
+
+**Verification performed**:
+- Manual `~/.claude/hooks/wsl-toast/notify.sh --title "Fix Test" --message "..."` → `[INFO] Notification sent successfully`
+- User confirmed toast visible in Windows Action Center
+
+**Commits**:
+- (this commit) fix: v1.3.2 — add -ExecutionPolicy Bypass for WSL remote-path block
 
